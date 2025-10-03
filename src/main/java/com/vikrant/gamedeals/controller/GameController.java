@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vikrant.gamedeals.dto.GameDeal;
 import com.vikrant.gamedeals.entity.Game;
 import com.vikrant.gamedeals.entity.User;
 import com.vikrant.gamedeals.service.GameService;
@@ -29,7 +30,7 @@ public class GameController {
         return gameService.searchGame(name,prefix);
     }
    @GetMapping("/getGameDetails")
-   public String getGameDetails(@RequestParam String appId){
+   public List<GameDeal> getGameDetails(@RequestParam String appId){
     return gameService.getGameDetails(appId);
    }
 }

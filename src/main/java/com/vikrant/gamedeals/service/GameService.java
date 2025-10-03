@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.vikrant.gamedeals.dto.GameDeal;
 import com.vikrant.gamedeals.entity.Game;
 import com.vikrant.gamedeals.entity.User;
 import com.vikrant.gamedeals.repository.GameRepo;
@@ -51,24 +52,24 @@ public class GameService {
         return gameRep.findByName(name);
     }
 
-    public String getGameDetails(String gameId) {
-        String url = "https://store.steampowered.com/api/appdetails/?appids=" + gameId;
+    public List<GameDeal> getGameDetails(String gameId) {
+        String url = "https://www.cheapshark.com/api/1.0/deals?AppID=" + gameId;
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        System.out.println(response.getBody());
-        JSONObject root = new JSONObject(response.getBody());
-        JSONObject appId = root.getJSONObject(gameId);
-        JSONObject data = appId.getJSONObject("data");
-        JSONObject price_overview = data.getJSONObject("price_overview");
-        System.out.println(price_overview);
-        // List<Game> gameToInsert = new ArrayList<>();
-        // for(int i = 0 ; i< apps.length();i++) {
-        // JSONObject currentJSONObj = apps.getJSONObject(i);
-        // Game game = new
-        // Game(currentJSONObj.getLong("appid"),currentJSONObj.getString("name"));
-        // gameToInsert.add(game);
-        // }
-        // gameRep.saveAll(gameToInsert);
-
-        return price_overview.toString();
+        JSONArray root = new JSONArray(response.getBody());
+        List<GameDeal> gameDeals = new ArrayList<>();
+        for(int i = 0 ; i <root.length();i++ ){
+            JSONObject currObject = root.getJSONObject(i);
+        
+            GameDeal gameDeal = new GameDeal(currObject.getString("title"),
+            storeIdMaps.getOrDefault(Integer.parseInt(currObject.getString("storeID")), currObject.getString("storeID")),
+            currObject.getString("normalPrice"),
+            currObject.getString("isOnSale").equals("1")?true:false,
+            currObject.getString("savings"),   
+            currObject.getString("metacriticScore")   
+            );
+            
+            gameDeals.add(gameDeal);
+        }
+        return gameDeals;
     }
 }
